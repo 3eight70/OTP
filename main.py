@@ -70,13 +70,6 @@ def check_entropy():
 
 @app.route("/generate_temp_password", methods=["POST"])
 def generate_temp_password():
-    key = None
-
-    if not check_entropy():
-        key = generate_key_from_api()
-        if not key:
-            return jsonify({"error": "Неполучается сгенерировать ключ"}), 500
-
     request_data = request.get_json()
     if "password" not in request_data:
         return jsonify({"error": "Отсутствует поле 'password' в запросе"}), 400
@@ -84,6 +77,13 @@ def generate_temp_password():
     password = request_data["password"]
     salt = generate_salt()
     hashed_password = hashlib.sha256((password + salt).encode()).hexdigest()
+
+    key = None
+
+    if not check_entropy():
+        key = generate_key_from_api()
+        if not key:
+            return jsonify({"error": "Неполучается сгенерировать ключ"}), 500
 
     if not key:
         key = generate_symmetric_key()
